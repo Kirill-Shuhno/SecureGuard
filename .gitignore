@@ -7,3 +7,12 @@ Debug/
 *.tlog 
 *.exe 
 *.dll 
+.vs/ 
+x64/ 
+Debug/ 
+*.obj 
+*.pdb 
+*.ilk 
+*.tlog 
+*.exe 
+*.dll 
