@@ -1,0 +1,16 @@
+class SecureGuard {
+private:
+    string protectedFolder;
+    map<string, string> fileHashes; // путь к файлу 
+    vector<string> signatures; // запрещенные сигнатуры
+    
+public:
+    // Конструктор
+    SecureGuard(const string& folder) : protectedFolder(folder) {
+        // Добавляем примеры вредоносных сигнатур
+        signatures.push_back("WannaCry");
+        signatures.push_back("Ransomware");
+        signatures.push_back("Locky");
+        signatures.push_back("TeslaCrypt");
+        // Можно добавить свои сигнатуры в HEX формате
+    } 
