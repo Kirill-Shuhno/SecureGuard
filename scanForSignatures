@@ -1,0 +1,26 @@
+void scanForSignatures() {
+        cout << "[*] Запуск сканирования на наличие сигнатур угроз..." << endl;
+        bool threatsFound = false;
+
+        for (const auto& entry : fs::recursive_directory_iterator(protectedFolder)) {
+            if (fs::is_regular_file(entry.path())) {
+                string pathStr = entry.path().string();
+                string content = readFileContent(pathStr);
+
+                // Ищем каждую сигнатуру в содержимом файла
+                for (const auto& signature : signatures) {
+                    if (content.find(signature) != string::npos) {
+                        cout << "[!!!] ВНИМАНИЕ: В файле [" << entry.path().filename().string() 
+                             << "] обнаружена угроза: " << signature << "!" << endl;
+                        cout << "      Путь: " << pathStr << endl;
+                        threatsFound = true;
+                    }
+                }
+            }
+        }
+
+        if (!threatsFound) {
+            cout << "[+] Сигнатур угроз не обнаружено." << endl;
+        }
+        cout << endl;
+    }
