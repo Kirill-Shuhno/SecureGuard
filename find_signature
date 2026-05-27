@@ -1,0 +1,87 @@
+#include <iostream>
+#include <fstream>
+#include <filesystem>
+#include <string>
+#include<sstream>
+#include <iomanip>
+#include <openssl/sha.h>
+
+
+using namespace std;
+namespace fs = std::filesystem;
+
+string sha256(const string& str) {
+    unsigned char hash[32];
+
+    SHA256((unsigned char*)str.c_str(), str.size(), hash);// (unsigned char) надо потому что c_str() возвращает const char*
+    //второй параметр сколько байт надо читать 
+
+    stringstream ss; //  создаем строковый поток
+
+    for (int i = 0; i < 32; i++)
+    {
+        ss << hex << setw(2) << setfill('0') << (int)hash[i];//(int) нужен тк изначально байты хранятся символами а не числами
+    }
+    return ss.str();
+}
+
+bool find_signature(ifstream& file)
+{
+    vector<unsigned char> data(
+        (istreambuf_iterator<char>(file)),
+        istreambuf_iterator<char>()
+    );
+
+    vector<unsigned char> signature = {
+        0x90, 0x90, 0xE8, 0xFF // сигнатура которую мы ищем
+    };
+
+    if (data.size() < signature.size())
+    {
+        cout << "file too small\n";
+        return false;
+    }
+    bool find = false;
+    for (size_t i = 0; i <= data.size()-signature.size(); i++)// обозначаем size_t тк  data.size() и signature.size() возвращают его
+    {
+        bool sign_find = true;
+            for (size_t j = 0; j < signature.size(); j++) {
+                if (data[i + j] != signature[j]) {
+                    sign_find = false;
+                    break;
+                }
+            }
+
+            if (sign_find)
+            {
+                return true;//Сигнатура найдена!
+            }
+    }
+    return false;//Сигнатура не найдена!
+}
+
+int main()
+{
+    ofstream file("text.txt", ios::binary);
+    file << "Hello World";
+    file.close();
+
+    for (const auto& e : fs::directory_iterator("D:\\Unique\\FA\\couresework\\couresework")) {
+        if (e.path().filename() == "text.txt")
+        {
+            cout << "File found" << endl;
+            cout << e.path().extension() << endl;
+        }
+        
+    }
+    ifstream fileIn("text.txt", ios::binary);
+        string data(
+            (istreambuf_iterator<char>(fileIn)),
+            istreambuf_iterator<char>());
+    string res = sha256(data);
+    cout << res << endl;
+
+    if (find_signature(fileIn))cout << "signature found\n";
+    else cout << "signature not found\n";
+    
+}
